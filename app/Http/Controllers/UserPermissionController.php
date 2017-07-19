@@ -72,9 +72,12 @@ class UserPermissionController extends Controller
     public function getGrantedUser($permisionId)
     {
 
-        $user_permission = UserPermission::query();
-        $user_permission->where('idPermission', $permisionId);
-        return $user_permission->get();
+      $user = DB::table('users')
+          ->join('user_has_permission', 'users.id', '=', 'user_has_permission.idUser')
+          ->select('users.username', 'users.name', 'users.email')
+          ->where('user_has_permission.idPermission', $permisionId)
+          ->get();
+      return $user;
     }
 
     /**
