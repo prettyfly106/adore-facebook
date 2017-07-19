@@ -69,8 +69,8 @@ class UserPermissionController extends Controller
     {
 
         $user_permission = UserPermission::query();
-        $user_permission->where('idPermision', $permisionId);
-        return $user_permission;
+        $user_permission->where('idPermission', $permisionId);
+        return $user_permission->get();
     }
 
     /**
