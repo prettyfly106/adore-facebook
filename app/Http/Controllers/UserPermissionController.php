@@ -15,7 +15,7 @@ class UserPermissionController extends Controller
     public function index()
     {
         //
-        return UserPermission::all(); 
+        return UserPermission::all();
     }
 
     /**
@@ -41,9 +41,13 @@ class UserPermissionController extends Controller
             'idUser' => 'required|max:10',
             'idPermission' => 'required|max:10',
         ]);
-
-        $user_permission = UserPermission::create($request->all());
-        return $user_permission;
+        $input = $request->all();
+        $user_permission = UserPermission::create($input);
+        //return $user_permission;
+        return response()->json([
+              'status' => 'SUCCESS',
+              'data' => $user_permission
+          ], 200);
     }
 
     /**
@@ -56,16 +60,16 @@ class UserPermissionController extends Controller
     public function getPermission($userId)
     {
         //
-        $user_permission = UserPermission::query();    
-        $user_permission->where('idUser', $userId);  
-        return $user_permission;
+        $user_permission = UserPermission::query();
+        $user_permission->where('idUser', $userId);
+        return $user_permission->get();
     }
 
     public function getGrantedUser($permisionId)
     {
-        
-        $user_permission = UserPermission::query();    
-        $user_permission->where('idPermision', $permisionId);  
+
+        $user_permission = UserPermission::query();
+        $user_permission->where('idPermision', $permisionId);
         return $user_permission;
     }
 
@@ -94,7 +98,7 @@ class UserPermissionController extends Controller
             'idPermission' => 'required|max:10',
         ]);
 
-        UserPermission::find($permissionId)->update($request->all());        
+        UserPermission::find($permissionId)->update($request->all());
         return response()->json([
           'status' => 'SUCCESS',
           'userPermission' => Permission::find($permissionId),

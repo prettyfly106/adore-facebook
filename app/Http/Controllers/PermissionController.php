@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Permission;
 use Illuminate\Http\Request;
+use JWTAuth;
 
 class PermissionController extends Controller
 {
@@ -69,7 +70,17 @@ class PermissionController extends Controller
     {
         //
         $permission = Permission::find($id);
-        return $permission;
+        if (is_null($permission)) {
+          return response()->json([
+                'status' => 'FAILED',
+                'error' => 'ID NOT EXIST'
+            ], 404);
+        }
+        else
+        return response()->json([
+              'status' => 'SUCCESS',
+              'data' => $permission
+          ], 200);
     }
 
     /**

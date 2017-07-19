@@ -26,7 +26,7 @@ Route::prefix('api/v1/auth')->group(function()
         Route::post('resetPassword', 'AuthController@postResetPassword')->name('password.reset');
 
     });
-Route::prefix('api/v1/permission')->group(function()
+Route::prefix('api/v1/permission')->middleware('jwt.auth')->group(function()
  {
         Route::get('/', 'PermissionController@index');
         Route::get('/{id}', 'PermissionController@edit');
@@ -34,7 +34,7 @@ Route::prefix('api/v1/permission')->group(function()
         Route::delete('/{id}', 'PermissionController@destroy');
         Route::post('/{id}', 'PermissionController@update');
     });
-Route::prefix('api/v1/user-permission')->group(function()
+Route::prefix('api/v1/user-permission')->middleware('jwt.auth')->group(function()
  {
         Route::post('/', 'UserPermissionController@store');
         Route::get('get-granted-permission/{id}', 'UserPermissionController@getPermission');
