@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\UserPermission;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class UserPermissionController extends Controller
 {
@@ -60,9 +61,12 @@ class UserPermissionController extends Controller
     public function getPermission($userId)
     {
         //
-        $user_permission = UserPermission::query();
-        $user_permission->where('idUser', $userId);
-        return $user_permission->get();
+        $permission = DB::table('permission')
+            ->join('user_has_permission', 'permission.idPermission', '=', 'user_has_permission.idPermission')
+            ->select('permission.idPermission', 'permission.permissionName', 'permission.permissionDescription')
+            ->where('user_has_permission.idUser', $userId)
+            ->get();
+        return $permission;
     }
 
     public function getGrantedUser($permisionId)
