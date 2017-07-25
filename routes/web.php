@@ -18,7 +18,7 @@ Route::get('/', function () {
 //Route::resource('user', 'UserController');
 //Route::resource('permission', 'PermissionController');
 
-Route::prefix('api/v1/auth')->group(function()
+Route::prefix('api/v1/auth')->middleware('cors')->group(function()
     {
         Route::post('login', 'AuthController@postLogin');
         Route::post('register', 'AuthController@postRegister');
@@ -26,7 +26,7 @@ Route::prefix('api/v1/auth')->group(function()
         Route::post('resetPassword', 'AuthController@postResetPassword')->name('password.reset');
 
     });
-Route::prefix('api/v1/permission')->group(function()
+Route::prefix('api/v1/permission')->middleware(['cors','jwt.auth'])->group(function()
  {
         Route::get('/', 'PermissionController@index');
         Route::get('/{id}', 'PermissionController@edit');
