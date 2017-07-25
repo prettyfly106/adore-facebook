@@ -26,6 +26,7 @@ class CreateUserTable extends Migration
             $table->dateTime('dateOfBith');
             $table->string('email', 100)->unique();
             $table->string('address', 250);
+            $table->string('fb_id',50);
             // $table->rememberToken();
             $table->timestamps();
 

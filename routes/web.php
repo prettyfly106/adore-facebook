@@ -21,6 +21,7 @@ Route::get('/', function () {
 Route::prefix('api/v1/auth')->middleware('cors')->group(function()
     {
         Route::post('login', 'AuthController@postLogin');
+        Route::post('fbLogin', 'AuthController@facebookLogin');
         Route::post('register', 'AuthController@postRegister');
         Route::post('emailPassword', 'AuthController@postEmailPassword');
         Route::post('resetPassword', 'AuthController@postResetPassword')->name('password.reset');

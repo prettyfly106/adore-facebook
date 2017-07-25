@@ -6,8 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 use App\User;
 use JWTAuth;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
 
 class AuthController extends Controller
 {
@@ -24,16 +27,49 @@ class AuthController extends Controller
 
         Log::debug(__METHOD__.' - validate user and create token');
         $token = JWTAuth::attempt($request->only('username', 'password'));
+
         if (!$token)
         {
             return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
         }
         else
         {
-            return response()->json(compact('token'));
+            //return response()->json(compact('token'));
+            return response()->json([
+                  'status' => 'SUCCESS',
+                  'token' => $token
+              ], 200);
         }
     }
 
+    public function facebookLogin(Request $request)
+    {
+      $client = new Client();
+      $result = $client->get('https://graph.facebook.com/v2.10/debug_token', [
+        'query' => [
+            'input_token' => $request->access_token,
+            'access_token' => $request->access_token
+        ]
+      ]);
+      $response = json_decode($result->getBody()->getContents());
+      if ($response->data) {
+        $user = User::where('fb_id','=',$response->data->user_id)->first();
+        //$token = JWTAuth::attempt($user->only('username', 'password'));
+      }
+      $token = JWTAuth::fromUser($user);
+        if (!$token)
+        {
+            return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
+        }
+        else
+        {
+            //return response()->json(compact('token'));
+            return response()->json([
+                  'status' => 'SUCCESS',
+                  'token' => $token
+              ], 200);
+        }
+    }
     /**
      * User logout
      */
@@ -58,11 +94,12 @@ class AuthController extends Controller
             'client_id' => 'required|integer',
             'dateOfBith' => 'required|date',
             'email' => 'required|email',
-            'address' => 'required|max:250'
+            'address' => 'required|max:250',
+            'fb_id' => 'max:50'
         ]);
 
         try
-        { 
+        {
             Log::debug(__METHOD__.' - create new user');
             $user = new User;
             $user->fill($request->all());
@@ -79,7 +116,7 @@ class AuthController extends Controller
         Log::debug(__METHOD__.' - token is: '.$token);
         return response()->json(compact('token'));
     }
-    
+
     /**
      * Send email when forgot password
      */
@@ -103,7 +140,7 @@ class AuthController extends Controller
             return response()->json(['error' => trans($response)], Response::HTTP_BAD_REQUEST);
         }
     }
-    
+
     /**
      * Update password
      */
