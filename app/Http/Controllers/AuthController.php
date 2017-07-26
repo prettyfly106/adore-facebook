@@ -17,6 +17,8 @@ class AuthController extends Controller
     /**
      * User login
      */
+    protected $fbAPIUri = 'https://graph.facebook.com/v2.10/';//Config::get('constants.fbAPIUri');
+
     public function postLogin(Request $request)
     {
         Log::debug(__METHOD__.' - validate input');
@@ -52,23 +54,50 @@ class AuthController extends Controller
         ]
       ]);
       $response = json_decode($result->getBody()->getContents());
+      $user = null;
+      $token = null;
       if ($response->data) {
-        $user = User::where('fb_id','=',$response->data->user_id)->first();
-        //$token = JWTAuth::attempt($user->only('username', 'password'));
+        $fb_id = $response->data->user_id;
+        $client = new Client();
+        $result = $client->get('https://graph.facebook.com/v2.10/me', [
+          'query' => [
+              'fields' => 'name,email,birthday,gender,picture.type(large)',
+              'access_token' => $request->access_token
+          ]
+        ]);
+        $fb_info = json_decode($result->getBody()->getContents());
+        $user = User::where('fb_id',$fb_id)->orWhere('email','=',$fb_info->email)->first();
+        if ($user==null && $fb_info != null) { // Tao
+          Log::debug(__METHOD__.' - create new user');
+          $user = new User;
+          $user->username=$fb_info->name;
+          $user->name=$fb_info->name;
+          $user->image=$fb_info->picture->data->url;
+          $user->email = $fb_info->email;
+          $user->fb_id = $fb_id;
+          $user->client_id = 1;
+          $user->save();
+        }
+        else if ($user!=null && $user->fb_id == null) {
+          $user->fb_id = $fb_id;
+          $user->save();
+        }
       }
+      if ($user)
       $token = JWTAuth::fromUser($user);
-        if (!$token)
-        {
-            return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
-        }
-        else
-        {
-            //return response()->json(compact('token'));
-            return response()->json([
-                  'status' => 'SUCCESS',
-                  'token' => $token
-              ], 200);
-        }
+      if (!$token)
+      {
+          return response()->json(['error' => 'Invalid credentials'], Response::HTTP_UNAUTHORIZED);
+      }
+      else
+      {
+          //return response()->json(compact('token'));
+          return response()->json([
+                'status' => 'SUCCESS',
+                'token' => $token,
+                'user_info' => $user
+            ], 200);
+      }
     }
     /**
      * User logout
@@ -88,7 +117,7 @@ class AuthController extends Controller
         $this->validate($request, [
             'username' => 'required|max:45|unique:users,username',
             'password' => 'required|min:6|max:45',
-            'image' => 'required|max:100',
+            'image' => 'required|max:500',
             'name' => 'required|max:10',
             'phone' => 'required|numeric',
             'client_id' => 'required|integer',

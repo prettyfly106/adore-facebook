@@ -2,7 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Page;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use JWTAuth;
 
 class PageController extends Controller
 {
@@ -19,7 +22,7 @@ class PageController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-          'page_id' => 'required',
+          'user_id' => 'required',
           'Page_id' => 'required|max:50|unique:Pages'
         ], $this->validateMessages());
 
@@ -43,12 +46,47 @@ class PageController extends Controller
         $Page->Page_id = $request->page_id;
         $Page->creator_id = $request->creator_id;
         $Page->create_date = $request->create_date;
-        $Page->product_id = $request->product_id;       
+        $Page->product_id = $request->product_id;
         $Page->save();
 
         return response()->json([
           'status' => 'SUCCESS',
           'Page' => $Page
         ], 201);
+    }
+
+    public function followPage(Request $request, $pageId) {
+      $user = JWTAuth::parseToken()->authenticate();
+      $page = DB::table('facebook_pages')
+          ->select('facebook_pages.*')
+          ->where('user_id', $user->user_id)
+          ->where('page_id', $pageId)
+          ->get();
+      if ($page->isEmpty()) {
+        $page = new Page;
+        $page->page_id =$pageId;
+        $page->user_id =$user->id;
+        //$page->approve_date =  Carbon\Carbon::now();
+        $page->status = 1;
+        $page->save();
+      }
+      return response()->json([
+        'status' => 'SUCCESS',
+        'data' => $page
+      ], 200);
+    }
+
+    public function getPage($userId)
+    {
+        //
+        $page = DB::table('facebook_pages')
+            ->select('facebook_pages.*')
+            ->where('user_id', $userId)
+            ->get();
+        $user = JWTAuth::parseToken()->authenticate();
+        return response()->json([
+          'status' => 'SUCCESS',
+          'data' => $page
+        ], 200);
     }
 }

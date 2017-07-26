@@ -42,3 +42,8 @@ Route::prefix('api/v1/user-permission')->group(function()
         Route::get('get-granted-user/{id}', 'UserPermissionController@getGrantedUser');
 
     });
+    Route::prefix('api/v1/page')->middleware(['cors','jwt.auth'])->group(function()
+     {
+            Route::get('/{user_id}', 'PageController@getPage');
+            Route::post('/follow/{page_id}', 'PageController@followPage');
+        });
