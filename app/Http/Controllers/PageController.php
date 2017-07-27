@@ -74,7 +74,7 @@ class PageController extends Controller
       $user = JWTAuth::parseToken()->authenticate();
       $page = DB::table('facebook_pages')
           ->select('facebook_pages.page_id')
-          ->where('user_id', $user->user_id)
+          ->where('user_id', $user->id)
           ->where('status', 1)
           ->get();
       return response()->json([
@@ -87,16 +87,19 @@ class PageController extends Controller
       $user = JWTAuth::parseToken()->authenticate();
       $page = DB::table('facebook_pages')
           ->select('facebook_pages.*')
-          ->where('user_id', $user->user_id)
-          ->where('page_id', $pageId)
-          ->get();
-      if ($page->isEmpty()) {
+          ->where('user_id', $user->id)
+          ->where('page_id', $pageId);
+      if ($page->get()->isEmpty()) {
         $page = new Page;
         $page->page_id =$pageId;
         $page->user_id =$user->id;
         //$page->approve_date =  Carbon\Carbon::now();
         $page->status = 1;
         $page->save();
+      }
+      else {
+        $page->update(array('status' => 1));
+        $page = $page->get();
       }
       return response()->json([
         'status' => 'SUCCESS',

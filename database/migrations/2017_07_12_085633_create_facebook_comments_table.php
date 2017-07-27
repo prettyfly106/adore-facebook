@@ -19,7 +19,7 @@ class CreateFacebookCommentsTable extends Migration
                 $table->string('comment_id',50)->unique();
                 $table->integer('poster_id',50);
                 $table->integer('status');
-               $table->foreign('post_id')->references('post_id')->on('facebook_posts');
+                $table->foreign('post_id')->references('post_id')->on('facebook_posts');
             });
         }
     }
