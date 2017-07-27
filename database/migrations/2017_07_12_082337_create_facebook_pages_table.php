@@ -18,9 +18,9 @@ class CreateFacebookPagesTable extends Migration
             Schema::create('facebook_pages', function(Blueprint $table) {
                 $table->integer('user_id');
                 $table->string('page_id');
-                $table->date('approve_date');
-                $table->date('unwatch_date');
                 $table->integer('status');
+                $table->timestamps();
+                $table->primary(['user_id', 'page_id']);
             });
         }
 

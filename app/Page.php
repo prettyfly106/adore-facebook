@@ -8,7 +8,7 @@ class Page extends Model
 {
     //
     protected $table = 'facebook_pages';
-    public $timestamps = false;
+    //public $timestamps = false;
     //protected $primaryKey = ['idPermission','idUser'];
 
     /**

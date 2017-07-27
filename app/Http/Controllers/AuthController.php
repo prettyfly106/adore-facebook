@@ -19,6 +19,11 @@ class AuthController extends Controller
      */
     protected $fbAPIUri = 'https://graph.facebook.com/v2.10/';//Config::get('constants.fbAPIUri');
 
+    public function getLogin() {
+      $user = JWTAuth::parseToken()->authenticate();
+      return $user;
+    }
+
     public function postLogin(Request $request)
     {
         Log::debug(__METHOD__.' - validate input');
@@ -36,10 +41,11 @@ class AuthController extends Controller
         }
         else
         {
-            //return response()->json(compact('token'));
+            $user = User::where('username', $request->username)->first();
             return response()->json([
                   'status' => 'SUCCESS',
-                  'token' => $token
+                  'token' => $token,
+                  'user_info' => $user
               ], 200);
         }
     }

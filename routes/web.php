@@ -20,6 +20,7 @@ Route::get('/', function () {
 
 Route::prefix('api/v1/auth')->middleware('cors')->group(function()
     {
+        Route::post('status', 'AuthController@getLogin')->middleware('jwt.auth');
         Route::post('login', 'AuthController@postLogin');
         Route::post('fbLogin', 'AuthController@facebookLogin');
         Route::post('register', 'AuthController@postRegister');
@@ -44,6 +45,7 @@ Route::prefix('api/v1/user-permission')->group(function()
     });
     Route::prefix('api/v1/page')->middleware(['cors','jwt.auth'])->group(function()
      {
-            Route::get('/{user_id}', 'PageController@getPage');
+            Route::get('/', 'PageController@getPage');
+            Route::get('/follow', 'PageController@getFollowingPage');
             Route::post('/follow/{page_id}', 'PageController@followPage');
         });

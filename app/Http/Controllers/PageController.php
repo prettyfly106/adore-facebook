@@ -55,6 +55,34 @@ class PageController extends Controller
         ], 201);
     }
 
+    public function getPage()
+    {
+        //
+        $user = JWTAuth::parseToken()->authenticate();
+        $page = DB::table('facebook_pages')
+            ->select('facebook_pages.*')
+            ->where('user_id', $user->id)
+            ->get();
+
+        return response()->json([
+          'status' => 'SUCCESS',
+          'data' => $page
+        ], 200);
+    }
+
+    public function getFollowingPage() {
+      $user = JWTAuth::parseToken()->authenticate();
+      $page = DB::table('facebook_pages')
+          ->select('facebook_pages.page_id')
+          ->where('user_id', $user->user_id)
+          ->where('status', 1)
+          ->get();
+      return response()->json([
+        'status' => 'SUCCESS',
+        'data' => $page
+      ], 200);
+    }
+
     public function followPage(Request $request, $pageId) {
       $user = JWTAuth::parseToken()->authenticate();
       $page = DB::table('facebook_pages')
@@ -76,17 +104,4 @@ class PageController extends Controller
       ], 200);
     }
 
-    public function getPage($userId)
-    {
-        //
-        $page = DB::table('facebook_pages')
-            ->select('facebook_pages.*')
-            ->where('user_id', $userId)
-            ->get();
-        $user = JWTAuth::parseToken()->authenticate();
-        return response()->json([
-          'status' => 'SUCCESS',
-          'data' => $page
-        ], 200);
-    }
 }

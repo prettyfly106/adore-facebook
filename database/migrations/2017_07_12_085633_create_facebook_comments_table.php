@@ -16,12 +16,10 @@ class CreateFacebookCommentsTable extends Migration
         if (!Schema::hasTable('facebook_comments')) {
             Schema::create('facebook_comments', function(Blueprint $table) {
                 $table->string('post_id');
-                $table->string('comment_id');
-                $table->integer('poster_id');
+                $table->string('comment_id',50)->unique();
+                $table->integer('poster_id',50);
                 $table->integer('status');
-               $table->unique(['comment_id']);
-               $table->foreign('post_id')
-          ->references('post_id')->on('facebook_posts');
+               $table->foreign('post_id')->references('post_id')->on('facebook_posts');
             });
         }
     }

@@ -16,13 +16,10 @@ class CreateFacebookPostsTable extends Migration
         if (!Schema::hasTable('facebook_posts')) {
             Schema::create('facebook_posts', function (Blueprint $table) {
                 $table->string('page_id');
-                $table->string('post_id');
-                $table->integer('creator_id');
-                $table->date('create_date');
-                $table->integer('product_id');
-                $table->unique(['post_id']);
-                $table->foreign('page_id')
-          ->references('page_id')->on('facebook_pages');
+                $table->string('post_id')->unique();
+                $table->integer('creator_id',50);
+                $table->integer('product_id')->nullable();
+                $table->foreign('page_id')->references('page_id')->on('facebook_pages');
             });
         }
     }

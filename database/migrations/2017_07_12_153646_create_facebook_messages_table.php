@@ -16,12 +16,11 @@ class CreateFacebookMessagesTable extends Migration
          if (!Schema::hasTable('facebook_messages')) {
             Schema::create('facebook_messages', function (Blueprint $table) {
                 $table->string('page_id');
-                $table->string('message_id');
-                $table->string('sender_id');
+                $table->string('message_id',50)->unique();
+                $table->string('sender_id',50);
                 $table->integer('status');
-                $table->unique(['message_id']);
-                $table->foreign('page_id')
-          ->references('page_id')->on('facebook_pages');
+                $table->timestamps();
+                //$table->foreign('page_id')->references('page_id')->on('facebook_pages');
             });
         }
     }
